@@ -27,7 +27,7 @@ from setuptools.command.install import install as _install
 
 from azurelinuxagent.common.osutil import get_osutil
 from azurelinuxagent.common.version import AGENT_NAME, AGENT_VERSION, \
-    AGENT_DESCRIPTION, \
+    AGENT_DESCRIPTION, PY_VERSION_MAJOR, \
     DISTRO_NAME, DISTRO_VERSION, DISTRO_FULL_NAME
 
 root_dir = os.path.dirname(os.path.abspath(__file__))  # pylint: disable=invalid-name
@@ -176,7 +176,11 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
         set_logrotate_files(data_files)
         set_udev_files(data_files, dest="/lib/udev/rules.d")
         if debian_has_systemd():
-            set_systemd_files(data_files, dest=systemd_dir_path)
+            if PY_VERSION_MAJOR == 3:
+                set_systemd_files(data_files, dest=systemd_dir_path,
+                          src=["init/debian/waagent.service"])
+            else:
+                set_systemd_files(data_files, dest=systemd_dir_path)
     elif name == 'iosxe':
         set_conf_files(data_files, src=["config/iosxe/waagent.conf"])
         set_logrotate_files(data_files)
@@ -200,8 +204,9 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
 
 def debian_has_systemd():
     try:
-        return subprocess.check_output(
-            ['cat', '/proc/1/comm']).strip() == 'systemd'
+        systemd_result =  subprocess.check_output(
+            ['cat', '/proc/1/comm']).strip()
+        return systemd_result == b'systemd' or systemd_result == 'systemd'
     except subprocess.CalledProcessError:
         return False
 
