@@ -70,7 +70,13 @@ class DebianOSModernUtil(DebianOSBaseUtil):
 
     @staticmethod
     def get_service_name():
-        return "walinuxagent"
+        return "waagent"
+
+    def register_agent_service(self):
+        return shellutil.run("systemctl enable {0}".format(self.service_name), chk_err=False)
+
+    def unregister_agent_service(self):
+        return shellutil.run("systemctl disable {0}".format(self.service_name), chk_err=False)
 
     def stop_agent_service(self):
         return shellutil.run("systemctl stop {0}".format(self.service_name), chk_err=False)
