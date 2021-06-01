@@ -25,7 +25,7 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.install import install as _install
 
-from azurelinuxagent.common.osutil import get_osutil
+from azurelinuxagent.common.osutil import get_osutil, systemd
 from azurelinuxagent.common.version import AGENT_NAME, AGENT_VERSION, \
     AGENT_DESCRIPTION, PY_VERSION_MAJOR, \
     DISTRO_NAME, DISTRO_VERSION, DISTRO_FULL_NAME
@@ -176,7 +176,7 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
         set_conf_files(data_files, src=["config/debian/waagent.conf"])
         set_logrotate_files(data_files)
         set_udev_files(data_files, dest="/lib/udev/rules.d")
-        if debian_has_systemd():
+        if systemd.is_systemd():
             print("systemd found for debian")
             if PY_VERSION_MAJOR == 3:
                 print("running on python 3")
@@ -205,14 +205,14 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
     return data_files
 
 
-def debian_has_systemd():
-    try:
-        systemd_result =  subprocess.check_output(
-            ['cat', '/proc/1/comm']).strip()
-        print("systemd check result ", systemd_result)
-        return systemd_result == b'systemd' or systemd_result == 'systemd'
-    except subprocess.CalledProcessError:
-        return False
+# def debian_has_systemd():
+#     try:
+#         systemd_result =  subprocess.check_output(
+#             ['cat', '/proc/1/comm']).strip()
+#         print("systemd check result ", systemd_result)
+#         return systemd_result == b'systemd' or systemd_result == 'systemd'
+#     except subprocess.CalledProcessError:
+#         return False
 
 
 class install(_install):  # pylint: disable=C0103
