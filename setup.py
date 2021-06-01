@@ -172,11 +172,14 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
         set_conf_files(data_files, src=["config/openbsd/waagent.conf"])
         set_openbsd_rc_files(data_files)
     elif name == 'debian':
+        print("generating files for debian")
         set_conf_files(data_files, src=["config/debian/waagent.conf"])
         set_logrotate_files(data_files)
         set_udev_files(data_files, dest="/lib/udev/rules.d")
         if debian_has_systemd():
+            print("systemd found for debian")
             if PY_VERSION_MAJOR == 3:
+                print("running on python 3")
                 set_systemd_files(data_files, dest=systemd_dir_path,
                           src=["init/debian/waagent.service"])
             else:
@@ -206,6 +209,7 @@ def debian_has_systemd():
     try:
         systemd_result =  subprocess.check_output(
             ['cat', '/proc/1/comm']).strip()
+        print("systemd check result ", systemd_result)
         return systemd_result == b'systemd' or systemd_result == 'systemd'
     except subprocess.CalledProcessError:
         return False
