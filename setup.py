@@ -243,6 +243,7 @@ class install(_install):  # pylint: disable=C0103
     def run(self):
         _install.run(self)
         if self.register_service:
+            print("Registering service for ", self.lnx_distro, " version ", self.lnx_distro_version)
             osutil = get_osutil()
             osutil.register_agent_service()
             osutil.stop_agent_service()
