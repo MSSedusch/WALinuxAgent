@@ -34,7 +34,7 @@ def is_systemd():
     Determine if systemd is managing system services; the implementation follows the same strategy as, for example,
     sd_booted() in libsystemd, or /usr/sbin/service
     """
-    return os.path.exists("/run/systemd/system/")
+    return os.path.exists("/run/systemd/system/") or os.path.exists("/lib/systemd/system/")
 
 
 def get_version():
